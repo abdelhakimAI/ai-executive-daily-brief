@@ -2,7 +2,7 @@
 
 An n8n workflow that automates my morning routine: it pulls today's calendar events, unread emails, the weather, top news, and open tasks, summarizes all of it with Google Gemini, and emails me a single clean brief — so I don't have to open 5 apps every morning.
 
-![Workflow overview](./screenshots/workflow-overview.png)
+![Workflow overview](./workflow-overview.png)
 
 ## 🎯 Problem it solves
 
