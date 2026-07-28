@@ -48,7 +48,8 @@ To run this yourself, you'll need:
 
 ## 📬 Sample output
 
-*(add a screenshot of the received email here — blur/redact your real address first)*
+<img width="922" height="568" alt="image" src="https://github.com/user-attachments/assets/a2723593-d881-4df1-9043-6276fc9f0b13" />
+
 
 ## 🛠 Built with
 
