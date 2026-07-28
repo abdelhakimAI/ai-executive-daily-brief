@@ -1,0 +1,496 @@
+{
+  "name": "AI Executive Daily Brief",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -512,
+        176
+      ],
+      "id": "9f99997c-9fdb-41f6-9336-6bcc5c38aeb1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        -208
+      ],
+      "id": "ed614af3-f1d7-44f6-9579-21d2232f5e35",
+      "name": "Get many events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": " ",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 5,
+        "filters": {
+          "readStatus": "unread",
+          "receivedAfter": "2026-07-19T00:00:00"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -288,
+        -16
+      ],
+      "id": "8f16497a-fa9a-478f-935e-c73e161deb8e",
+      "name": "Get many messages",
+      "webhookId": "974df701-5f29-44f8-a72c-cc676e72fd31",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": " ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "Place your city here"
+            },
+            {
+              "name": "appid",
+              "value": " "
+            },
+            {
+              "name": "units",
+              "value": "metric"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -288,
+        176
+      ],
+      "id": "6a75002d-3945-4966-84cb-1ce4b99f38f4",
+      "name": "Weather"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/top-headlines",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "country",
+              "value": "us"
+            },
+            {
+              "name": "category",
+              "value": "technology"
+            },
+            {
+              "name": "pageSize",
+              "value": "5"
+            },
+            {
+              "name": "apikey",
+              "value": " "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -288,
+        368
+      ],
+      "id": "6f1d605b-a202-42b7-b6b0-a4b772db5849",
+      "name": "News"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "task": " ",
+        "limit": 5,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleTasks",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        560
+      ],
+      "id": "bb96a49c-6a8d-491f-9ff1-faae9e1e03af",
+      "name": "Get many tasks",
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": " ",
+          "name": "Google Tasks account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"Tempreture\":  {{ $json.main.temp }},\n  \"Humidity\":  {{ $json.main.humidity }}  , \n  \"Feels_like\": {{ $json.main.feels_like }}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        176
+      ],
+      "id": "b5c392c9-15d1-4b86-8dcc-c82db6e0e4d8",
+      "name": "Set Weather"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"articles_mapped\": {{ \n    $json.articles.map(a => ({\n      \"Article name\": a.source.name,\n      \"title\": a.title,\n      \"content\": a.content\n    }))\n  }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        368
+      ],
+      "id": "7ab9023c-f189-41f8-955f-5b3f2c0bf094",
+      "name": "Set News"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        400
+      ],
+      "id": "92dd84cd-1ddb-445e-b4c6-8a6184cf0b91",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": " ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "your-email@example.com",
+        "subject": "=Your Daily Executive Brief — {{ $now.format('cccc, dd LLLL yyyy') }}",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        176
+      ],
+      "id": "14d8f40d-9a12-43a1-b8a1-e5c0fe5c11ec",
+      "name": "Send me a brief message",
+      "webhookId": "9253dcd1-41c9-4f7e-ad4c-d34151feb649",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": " ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 5,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        160,
+        128
+      ],
+      "id": "2f52b8d2-eef9-4154-a816-f1abe70a78a3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n{ \njson: {\n  Tasks: items.map(item => ({  \n  Kind: item.json.kind ,\n  Status: item.json.status, \n  Title : item.json.title}))\n\n}\n}\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        560
+      ],
+      "id": "667009d9-4d42-4898-a354-cca9e5e97eb6",
+      "name": "Set Tasks"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      calendar_events: items.map(item => ({\n        summary: item.json.summary,\n        details: item.json.description,\n        start_iso: item.json.start.dateTime,\n        end_iso: item.json.end.dateTime\n      }))\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -208
+      ],
+      "id": "9c1a29f9-77d2-4e26-bec9-3ce5b9ea71dc",
+      "name": "Set Events"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      Gmails: items.map(item => ({\n        Sender: item.json.From,\n        Subject: item.json.Subject,\n        Snippet: item.json.snippet\n      }))\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -16
+      ],
+      "id": "b3213202-57c9-4694-a96e-16536951e262",
+      "name": "Set Emails"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an executive assistant. Write a short, clear daily brief for my morning email using the data below. Keep it concise, use headers, and skip anything empty.\n\nCALENDAR EVENTS:\n{{ $json.calendar_events.map(item => `- ${item.summary} ${item.details} ${item.start_iso} ${item.end_iso}`).join('\\n') }}\nUNREAD EMAILS:\n{{ $json.Gmails.map(item => `- ${item.Sender} ${item.Subject} ${item.Snippet}`).join('\\n') }}\nTOP NEWS:\n{{ $json.articles_mapped.map(\n a => `- ${a.title} ${a.content}`\n).join('\\n') }}\nWEATHER:\n{{ $json.Tempreture }}\n{{ $json.Humidity }}\n{{ $json.Feels_like }}\nPENDING TASKS:\n{{ $json.Tasks.map(item => `- ${item.Kind} ${item.Status} ${item.Title}`).join('\\n') }}\nStart the email with a short, warm personal greeting (e.g. \"Good morning Hakim!\" plus one friendly line about the day ahead), and end with a brief, encouraging sign-off wishing me a productive day. Keep both the greeting and sign-off to 1-2 sentences, in the same HTML format as the rest.\nFormat the output as clean HTML suitable for an email body. Use <h3> for section titles, <b> for bold text, and <ul><li> for lists. Do NOT use Markdown syntax like ** or #. Sections: 📅 Schedule, 📧 Important Emails, 🌤️ Weather, 📰 News, ✅ Tasks.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        384,
+        176
+      ],
+      "id": "6a2b0d9a-3e45-4669-b13e-1e0b7dc73b96",
+      "name": "Summarize"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Weather",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Set Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Set Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather": {
+      "main": [
+        [
+          {
+            "node": "Set Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News": {
+      "main": [
+        [
+          {
+            "node": "Set News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many tasks": {
+      "main": [
+        [
+          {
+            "node": "Set Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Weather": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Set News": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Set Events": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Emails": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Send me a brief message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Africa/Casablanca",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "9023882a-c3f8-4c1a-8926-eb0041dd1639",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
